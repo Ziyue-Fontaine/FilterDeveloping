@@ -1,0 +1,74 @@
+{
+  "name": "vseed-monorepo",
+  "private": true,
+  "keywords": [
+    "vseed",
+    "vchart",
+    "vtable",
+    "visactor"
+  ],
+  "description": "VSeed, an elegant data composer, transforming complexity into simplicity.",
+  "scripts": {
+    "dev": "pnpm --filter=website run dev",
+    "build": "turbo build",
+    "format": "pnpm prettier --write .",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm turbo typecheck",
+    "g": "pnpm -r g && pnpm run format",
+    "dev:rsdoctor": "pnpm --filter=@visactor/vseed run dev:rsdoctor",
+    "build:rsdoctor": "pnpm --filter=@visactor/vseed run build:rsdoctor",
+    "test": "pnpm -r test",
+    "test:update": "pnpm -r test:update",
+    "test:coverage": "pnpm -r test:coverage",
+    "publish:ci": "pnpm run build && pnpm changeset publish --filter=@visactor/vseed,@visactor/vquery --access=public",
+    "prepare": "husky",
+    "vbi:down": "docker-compose -f ./docker/docker-compose.dev.yml down",
+    "vbi:up": "docker-compose -f ./docker/docker-compose.dev.yml up",
+    "postinstall": "test -e .env || cp .env.example .env"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,md,mdx}": [
+      "pnpm format",
+      "pnpm lint"
+    ]
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tools/*"
+  ],
+  "engines": {
+    "node": ">=24.12.0",
+    "pnpm": ">=10.26.1"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "node-fetch": "2.6.7",
+    "prettier": "^3.6.2",
+    "ts-morph": "26.0.0",
+    "turbo": "^2.6.1"
+  },
+  "packageManager": "pnpm@10.26.1",
+  "license": "MIT",
+  "homepage": "https://visactor.github.io/VSeed",
+  "bugs": "https://github.com/VisActor/VSeed/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VisActor/VSeed",
+    "directory": "packages/vseed"
+  },
+  "author": {
+    "name": "VisActor",
+    "url": "https://www.visactor.io/"
+  },
+  "pnpm": {
+    "overrides": {
+      "@visactor/vrender-core": "1.0.39",
+      "@visactor/vrender-kits": "1.0.39",
+      "@visactor/vrender-components": "1.0.39",
+      "@visactor/vrender-animate": "1.0.39"
+    }
+  }
+}

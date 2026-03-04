@@ -1,0 +1,39 @@
+{
+  "eslint.workingDirectories": [
+    { "pattern": "./packages/*/" },
+    { "pattern": "./tools/*/" },
+    { "pattern": "./apps/*/" }
+  ],
+  "files.exclude": {
+    "**/.git": false
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "cSpell.words": [
+    "catmull",
+    "duckdb",
+    "indexeddb",
+    "Introspector",
+    "Kysely",
+    "permille",
+    "preorder",
+    "rsdoctor",
+    "syncpack",
+    "VBIDSL",
+    "vquery",
+    "vseed"
+  ]
+}

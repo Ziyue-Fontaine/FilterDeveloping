@@ -1,0 +1,33 @@
+# Local
+.DS_Store
+*.local
+*.log*
+tsconfig.tsbuildinfo
+.eslintcache
+.env
+
+# Turbo
+.turbo
+
+# Dist
+dist/
+node_modules/
+coverage/
+
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
+
+tools/llm_test/top-key
+tools/llm_test/new-type
+
+
+# Claude
+.claude
+
+# Trae
+.trae

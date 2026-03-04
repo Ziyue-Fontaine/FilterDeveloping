@@ -1,0 +1,42 @@
+import { isNullish } from 'remeda'
+import { translateMap } from './i18nData'
+import type { Locale, TranslateRecordType } from '../types'
+
+class Intl {
+  private static instance: Intl
+
+  private translateMap: TranslateRecordType = translateMap
+  private locale: Locale = 'zh-CN'
+
+  canTranslate = (value: string) => !!this.translateMap[value]
+
+  /**
+   * @example i18n`指标名称`
+   */
+  i18n = (segments: TemplateStringsArray, ...values: Array<number | string>) => {
+    const text = segments.map((segment, index) => segment + (values[index] || '')).join('')
+    const translatedText = this.translateMap?.[text]?.[this.locale]
+    if (isNullish(translatedText)) {
+      return text
+    }
+    return translatedText
+  }
+
+  setLocale = (locale: Locale): void => {
+    this.locale = locale
+  }
+
+  getLocale: () => Locale = () => this.locale
+
+  public static getInstance() {
+    if (!Intl.instance) {
+      Intl.instance = new Intl()
+    }
+
+    return Intl.instance
+  }
+}
+
+const intl = Intl.getInstance()
+
+export { intl }

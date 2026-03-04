@@ -1,0 +1,98 @@
+{
+  "outlineTitle": {
+    "zh-CN": "大纲",
+    "en-US": "On This Page"
+  },
+  "languagesText": {
+    "zh-CN": "语言",
+    "en-US": "Languages"
+  },
+  "themeText": {
+    "zh-CN": "主题",
+    "en-US": "Theme"
+  },
+  "versionsText": {
+    "zh-CN": "版本",
+    "en-US": "Versions"
+  },
+  "menuTitle": {
+    "zh-CN": "菜单",
+    "en-US": "Menu"
+  },
+  "scrollToTopText": {
+    "zh-CN": "回到顶部",
+    "en-US": "Scroll to top"
+  },
+  "lastUpdatedText": {
+    "zh-CN": "最后更新于",
+    "en-US": "Last updated"
+  },
+  "prevPageText": {
+    "zh-CN": "上一页",
+    "en-US": "Previous page"
+  },
+  "nextPageText": {
+    "zh-CN": "下一页",
+    "en-US": "Next page"
+  },
+  "sourceCodeText": {
+    "zh-CN": "源代码",
+    "en-US": "Source code"
+  },
+  "searchPlaceholderText": {
+    "zh-CN": "搜索",
+    "en-US": "Search"
+  },
+  "searchPanelCancelText": {
+    "zh-CN": "取消",
+    "en-US": "Cancel"
+  },
+  "searchNoResultsText": {
+    "zh-CN": "无搜索结果",
+    "en-US": "No results"
+  },
+  "searchSuggestedQueryText": {
+    "zh-CN": "建议查询",
+    "en-US": "Suggested query"
+  },
+  "overview.filterNameText": {
+    "zh-CN": "按名称筛选",
+    "en-US": "Filter by name"
+  },
+  "overview.filterPlaceholderText": {
+    "zh-CN": "筛选...",
+    "en-US": "Filter..."
+  },
+  "overview.filterNoResultText": {
+    "zh-CN": "未找到结果",
+    "en-US": "No results found"
+  },
+  "openInText": {
+    "zh-CN": "打开方式",
+    "en-US": "Open in"
+  },
+  "copyMarkdownText": {
+    "zh-CN": "复制 Markdown",
+    "en-US": "Copy Markdown"
+  },
+  "copyMarkdownLinkText": {
+    "zh-CN": "复制链接",
+    "en-US": "Copy Link"
+  },
+  "editLinkText": {
+    "zh-CN": "编辑此页",
+    "en-US": "Edit this page"
+  },
+  "codeButtonGroupCopyButtonText": {
+    "zh-CN": "复制",
+    "en-US": "Copy"
+  },
+  "notFoundText": {
+    "zh-CN": "页面未找到",
+    "en-US": "Page not found"
+  },
+  "takeMeHomeText": {
+    "zh-CN": "返回首页",
+    "en-US": "Take me home"
+  }
+}

@@ -1,0 +1,6 @@
+.rp-playground {
+  margin: 0 !important;
+}
+.rp-playground-horizontal {
+  height: calc(100vh - 72px) !important;
+}

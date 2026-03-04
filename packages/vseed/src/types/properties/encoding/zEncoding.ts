@@ -1,0 +1,52 @@
+import { z } from 'zod'
+
+export const zEncoding = z.object({
+  x: z.array(z.string()).nullish(),
+  y: z.array(z.string()).nullish(),
+  angle: z.array(z.string()).nullish(),
+  radius: z.array(z.string()).nullish(),
+  detail: z.array(z.string()).nullish(),
+
+  color: z.array(z.string()).nullish(),
+  size: z.array(z.string()).nullish(),
+  tooltip: z.array(z.string()).nullish(),
+  label: z.array(z.string()).nullish(),
+
+  row: z.array(z.string()).nullish(),
+  column: z.array(z.string()).nullish(),
+  player: z.array(z.string()).nullish(),
+  hierarchy: z.array(z.string()).nullish(),
+
+  value: z.array(z.string()).nullish(),
+  q1: z.array(z.string()).nullish(),
+  q3: z.array(z.string()).nullish(),
+  median: z.array(z.string()).nullish(),
+  min: z.array(z.string()).nullish(),
+  max: z.array(z.string()).nullish(),
+  outliers: z.array(z.string()).nullish(),
+
+  x0: z.array(z.string()).nullish(),
+  x1: z.array(z.string()).nullish(),
+})
+
+/**
+ * @description 仅VSeed内AdvancedVSeed使用此结构, 其余场景请使用DimensionEncodingEnum、MeasureEncodingEnum
+ */
+export const EncodingEnum = {
+  x: 'x',
+  y: 'y',
+  angle: 'angle',
+  radius: 'radius',
+  detail: 'detail',
+
+  color: 'color',
+  size: 'size',
+  tooltip: 'tooltip',
+  label: 'label',
+
+  row: 'row',
+  column: 'column',
+
+  player: 'player',
+  hierarchy: 'hierarchy',
+} as const
