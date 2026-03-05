@@ -1,130 +1,85 @@
 # AGENTS.md
 
-This document provides essential development and verification guidelines for AI agents and contributors working in the VSeed/VBI monorepo.
+本文档旨在为 AI Agent 及项目贡献者提供关键的开发与验证指引。
 
-## Project Overview
+## 项目概览
 
-VBI (Visual Business Intelligence) is a lightweight, AI-oriented intelligent BI system. This is a pnpm-based monorepo containing:
+VSeed 是一个 Monorepo 项目，包含核心数据可视化组合器库及其周边生态。
 
-- **@visactor/vseed**: Core visualization engine that transforms semantic configurations into VChart/VTable specs.
-- **@visactor/vquery**: Lightweight query engine supporting DSL-to-SQL compilation and execution.
-- **apps/website**: Documentation and Playground site.
-- **practices/**: Example implementations and design patterns.
+- **@visactor/vseed**: 核心库，负责将语义化配置转换为 VChart/VTable Spec。
+- **@visactor/vquery**: 数据查询与转换引擎，支持 DSL 到 SQL 的编译与执行。
+- **apps/website**: 项目文档与 Playground 站点。
 
-## Essential Commands
+## 关键指引
 
-All commands **must** be executed from the project root using `pnpm`.
+### 1. 包管理器与执行环境
 
-### 1. Environment & Build
-- **Setup**: `pnpm install` (Ensures dependencies and husky hooks are installed)
-- **Build All**: `pnpm run build` (Uses Turbo for workspace-aware building)
-- **Start Website**: `pnpm run dev` (Launches `apps/website`)
-- **Type Check**: `pnpm run typecheck`
+**必须使用 `pnpm` 且所有命令必须在根目录执行。**
 
-### 2. Testing & Verification
-Before submitting any changes, you **must** run the relevant verification commands to ensure stability.
+- **锁定版本**: `pnpm` (版本 >= 10.26.1)
+- **禁止**: 使用 `npm` 或 `yarn`。
+- **执行规则**: 所有命令（构建、测试、开发）**必须**在项目根目录执行。使用 `pnpm --filter=<package>` 定位特定包。
 
-#### Running All Tests
+### 2. 验证阶段 (Verification Phase)
+
+在提交代码或认为任务完成之前，**必须** 执行以下验证步骤，并确保全部通过。
+
+#### 2.1 代码风格与类型检查
+
+确保代码符合 ESLint 规则且无类型错误。
+
 ```bash
-pnpm run test
+pnpm run lint          # 全量 Lint
+pnpm run typecheck     # 全量类型检查
 ```
 
-#### Running Package-Specific Tests
-- **VSeed (Vitest)**:
-  ```bash
-  pnpm --filter=@visactor/vseed run test:unit       # Isolated unit tests
-  pnpm --filter=@visactor/vseed run test:integration # Full spec generation tests
-  pnpm --filter=@visactor/vseed run test:coverage    # Check coverage reports
-  ```
-- **VQuery (Rstest)**:
-  ```bash
-  pnpm --filter=@visactor/vquery run test           # All query engine tests
-  pnpm --filter=@visactor/vquery run test:update    # Update snapshots/specs
-  ```
+#### 2.2 测试验证
 
-#### Running a Single Test
-- **VSeed**: `pnpm --filter=@visactor/vseed vitest <filename_or_pattern>`
-- **VQuery**: `pnpm --filter=@visactor/vquery rstest <filename_or_pattern>`
-- **Example**: `pnpm --filter=@visactor/vseed vitest src/pipeline/utils/checkVSeed.test.ts`
+根据修改的模块执行对应的测试：
 
-- **Example**: `pnpm --filter=@visactor/vseed vitest src/pipeline/utils/checkVSeed.test.ts`
+**VSeed (核心库)**
 
-### 3. Generator Tool (The `g` Feature)
-The repository includes a generator script `g` that synchronizes test cases and API documentation. **Run this after modifying core types, Zod schemas, or spec definitions.**
+```bash
+# 运行单元测试 (Unit Tests)
+pnpm --filter=@visactor/vseed run test:unit
+
+# 运行集成测试 (Integration Tests)
+pnpm --filter=@visactor/vseed run test:integration
+```
+
+**VQuery (查询引擎)**
+
+```bash
+# 运行测试 (基于 Rstest)
+pnpm --filter=@visactor/vquery run test
+```
+
+### 3. 常用命令与功能 (g)
+
+#### 3.1 生成器 (g 功能)
+
+项目包含一个关键的生成脚本 `g`，用于自动生成测试用例与文档。
+**修改代码后，建议运行此命令以确保资源同步。**
+
 ```bash
 pnpm run g
 ```
-This command performs:
-1. `build:test`: Generates test cases from specs located in `tests/examples`.
-2. `build:docs`: Updates API documentation based on JSDoc and TypeScript type definitions.
-3. `build:api`: Synchronizes API schemas.
-4. `format`: Re-formats the generated code using Prettier.
 
-### 4. VBI Docker Environment
-- **Start**: `pnpm run vbi:up`
-- **Stop**: `pnpm run vbi:down`
-- **Rebuild**: `pnpm run vbi:up --build`
+该命令会自动执行：
 
-## Code Style Guidelines
+- `build:test`: 根据 Spec 生成测试用例。
+- `build:docs`: 根据类型定义生成 API 文档。
 
-### 1. General Principles
-- **Modern & Elegant**: Code should be readable, well-structured, and follow modern TypeScript patterns.
-- **Strict Typing**: Prefer specific types over `any`. Use `zod` for runtime validation.
+#### 3.2 其他命令
 
-### 2. Formatting (Prettier)
-The project uses the following Prettier configuration:
-- **Semicolons**: Never (`"semi": false`)
-- **Quotes**: Single (`"singleQuote": true`)
-- **Trailing Commas**: Always (`"trailingComma": "all"`)
-- **Print Width**: 120 characters
-- **Indentation**: 2 spaces
+- **构建所有**: `pnpm run build`
+- **启动网站**: `pnpm run dev` (启动 apps/website)
 
-### 3. Naming Conventions
-- **Variables & Functions**: `camelCase` (e.g., `getChartData`, `updateSpec`).
-- **Classes & Types**: `PascalCase` (e.g., `VSeedBuilder`, `DatasetReshapeInfo`).
-- **Constants**: `UPPER_SNAKE_CASE` (e.g., `MAX_RETRIES`, `DEFAULT_TIMEOUT`).
-- **Zod Schemas**: Prefix with `z` (e.g., `zVSeed`, `zBarDimension`).
-- **Files**: Use `camelCase` for source files (e.g., `dataSelector.ts`) and `zSchemaName.ts` for Zod schema files.
+## VBI Docker 容器
 
-### 4. Imports & Exports
-- **Consistent Type Imports**: Always use `import type` for types to optimize build sizes and avoid circular dependencies.
-  ```typescript
-  import type { VSeedSpec, ChartType } from './types'
-  import { Builder } from './builder'
-  ```
-- **Barrel Exports**: Use `index.ts` files to expose public APIs for each directory.
-- **No Side Effects**: Ensure code is tree-shakeable (`sideEffects: false` in `package.json`).
+### 4.1 启动与关闭 VBI Docker 容器
 
-### 5. Error Handling
-- **Descriptive Errors**: Use descriptive error messages that explain *why* an operation failed.
-- **Fail Early**: Validate inputs at the beginning of functions.
-- **Preferred Pattern**:
-  ```typescript
-  if (!chartType) {
-    throw new Error('chartType is required in buildAdvanced')
-  }
-  ```
-- **Boundary Handling**: Use `try...catch` blocks when dealing with dynamic execution (e.g., workers or user-provided scripts) or external API calls.
-
-### 6. Documentation & Comments
-- **JSDoc**: Use `@description`, `@param`, and `@returns` for public API methods.
-- **Complexity**: Add comments for non-obvious logic, but avoid stating the obvious.
-- **Code is Doc**: Prefer self-documenting code with clear variable and function names.
-- **Consistency**: Keep all comments and documentation in English.
-
-## Directory Structure & Conventions
-
-- `packages/vseed/src/builder`: Logic for transforming semantic configs to VChart/VTable specs.
-- `packages/vseed/src/pipeline`: Core data processing pipeline, including validation and transformation.
-- `packages/vseed/src/types`: Centralized type definitions and Zod schemas.
-- `packages/vquery/src`: DSL-to-SQL query engine logic.
-- `apps/website/src`: Frontend implementation for the documentation and playground.
-- `tests/unit`: Isolated logic tests for individual functions or classes.
-- `tests/integrations`: Full-flow tests involving multiple components or full spec generation.
-
-## Final Checklist Before PR
-1. [ ] Code follows Prettier formatting (run `pnpm run format`).
-2. [ ] ESLint passes (run `pnpm run lint`).
-3. [ ] All relevant tests pass.
-4. [ ] `pnpm run g` has been executed if types/specs were modified.
-5. [ ] No `console.log` statements remain (unless strictly necessary for CLI tools).
+- **启动VBI Docker容器**: `pnpm run vbi:up`
+- **关闭VBI Docker容器**: `pnpm run vbi:down`
+- **构建VBI Docker容器**: `pnpm run vbi:up --build`
+- **删除VBI Docker容器**: `pnpm run vbi:down -v`
