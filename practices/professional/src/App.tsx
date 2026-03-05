@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import './App.css';
 import { ConfigProvider, theme, Dropdown, Button } from 'antd';
 import { LeftOutlined, RightOutlined, UploadOutlined } from '@ant-design/icons';
 import DimensionShelf from './components/Shelfs/DimensionShelf';
 import MeasureShelf from './components/Shelfs/MeasureShelf';
-import { FilterPanel } from './components/Filter/FilterPanel';
+import { FilterPanel, type FilterItem } from './components/Filter/FilterPanel';
 import type { VBIFilter } from '@visactor/vbi';
 import { ChartTypeSelector } from './components/ChartType';
 import FieldsList from './components/Fields/FieldList';
@@ -57,7 +57,76 @@ export function APP() {
     })),
   );
 
-  const filters = dsl?.filters || [];
+  const activeFields = useMemo(() => {
+    if (!dsl) return [];
+    const fields = new Set<string>();
+    
+    const extractFields = (items: any[]) => {
+      items?.forEach((item) => {
+        if (item && typeof item === 'object') {
+          if ('field' in item && typeof item.field === 'string') {
+            fields.add(item.field);
+          }
+          if ('children' in item && Array.isArray(item.children)) {
+            extractFields(item.children);
+          }
+        }
+      });
+    };
+
+    extractFields(dsl.dimensions || []);
+    extractFields(dsl.measures || []);
+    return Array.from(fields);
+  }, [dsl]);
+
+  const [allFields, setAllFields] = useState<{ name: string; role: 'dimension' | 'measure' }[]>([]);
+  const [filters, setFilters] = useState<FilterItem[]>([]);
+
+  useEffect(() => {
+    const handleFilterError = () => {
+      setFilters((prev) => prev.slice(0, -1));
+    };
+    window.addEventListener('vbi-filter-error', handleFilterError);
+    return () => window.removeEventListener('vbi-filter-error', handleFilterError);
+  }, []);
+
+  useEffect(() => {
+    if (initialized && builder) {
+      const fetchSchema = async () => {
+        const schema = await builder.getSchema();
+        setAllFields(
+          schema.map((s: { name: string; type: string }) => ({
+            name: s.name,
+            role: s.type === 'number' ? 'measure' : 'dimension',
+          }))
+        );
+      };
+      fetchSchema();
+    }
+  }, [initialized, builder]);
+
+  const handleFilterChange = (newFilters: FilterItem[]) => {
+    setFilters(newFilters);
+    if (builder) {
+      builder.doc.transact(() => {
+        builder.filters.clearFilters();
+        newFilters.forEach((f) => {
+          if (f.isActive) {
+            builder.filters.addFilter({
+              field: f.field,
+              operator: f.operator,
+              value: f.value,
+              actionType: f.actionType,
+              sortOrder: f.sortOrder,
+              limit: f.limit,
+              enabled: true,
+            });
+          }
+        });
+      });
+      setRenderKey((prev) => prev + 1);
+    }
+  };
 
   // 初始化
   useEffect(() => {
@@ -349,11 +418,10 @@ export function APP() {
                 {(dimensions.length > 0 || measures.length > 0) && (
                   <div style={{ padding: '0 12px' }}>
                     <FilterPanel 
-                      fields={[...dimensions, ...measures]} 
+                      fields={allFields.length > 0 ? allFields : [...dimensions.map(d => ({name: d, role: 'dimension' as const})), ...measures.map(m => ({name: m, role: 'measure' as const}))]} 
+                      activeFields={activeFields}
                       filters={filters}
-                      onAddFilter={handleAddFilter}
-                      onUpdateFilter={handleUpdateFilter}
-                      onDeleteFilter={handleDeleteFilter}
+                      onChange={handleFilterChange}
                     />
                   </div>
                 )}

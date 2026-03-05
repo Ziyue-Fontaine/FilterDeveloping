@@ -10,30 +10,61 @@ export const buildVQuery = (vbiDSL: VBIDSL, builder: VBIBuilder) => {
     return (queryDSL: VQueryDSL): VQueryDSL => processor(queryDSL, { vbiDSL, builder })
   }
 
-  return pipe({} as VQueryDSL, wrapper(buildSelect), wrapper(buildGroupBy), wrapper(buildWhere), wrapper(buildLimit))
+  return pipe({} as VQueryDSL, wrapper(buildSelect), wrapper(buildGroupBy), wrapper(buildWhere), wrapper(buildOrderBy), wrapper(buildLimit))
 }
 
 const buildWhere: buildPipe = (queryDSL, context) => {
   const { vbiDSL } = context
   const filters = vbiDSL.filters || []
 
-  const activeFilters = filters.filter((f) => f.enabled !== false)
+  // Only use normal filters for WHERE clause, exclude 'sort' actionType
+  const normalFilters = filters.filter((f) => f.enabled !== false && f.actionType !== 'sort')
 
-  if (activeFilters.length === 0) {
+  if (normalFilters.length === 0) {
     return queryDSL
   }
 
   const result = { ...queryDSL }
   result.where = {
     op: 'and',
-    conditions: activeFilters.map((filter) => {
-      return {
+    conditions: normalFilters.flatMap((filter) => {
+      if (filter.operator === 'between' && filter.value && typeof filter.value === 'object' && !Array.isArray(filter.value)) {
+        const conditions = [];
+        if (filter.value.min !== undefined && filter.value.min !== null && filter.value.min !== '') {
+          conditions.push({ field: filter.field, op: filter.value.leftOp === '<' ? '>' : '>=', value: filter.value.min });
+        }
+        if (filter.value.max !== undefined && filter.value.max !== null && filter.value.max !== '') {
+          conditions.push({ field: filter.field, op: filter.value.rightOp === '<' ? '<' : '<=', value: filter.value.max });
+        }
+        return conditions as any;
+      }
+      return [{
         field: filter.field,
         op: filter.operator,
         value: filter.value,
-      } as any
+      }] as any;
     }),
   }
+
+  return result as VQueryDSL
+}
+
+const buildOrderBy: buildPipe = (queryDSL, context) => {
+  const { vbiDSL } = context
+  const filters = vbiDSL.filters || []
+  
+  // Extract sort items
+  const sortItems = filters.filter((f) => f.enabled !== false && f.actionType === 'sort')
+
+  if (sortItems.length === 0) {
+    return queryDSL
+  }
+
+  const result = { ...queryDSL }
+  result.orderBy = sortItems.map((item) => ({
+    field: item.field,
+    order: item.sortOrder || 'desc',
+  })) as any
 
   return result as VQueryDSL
 }
@@ -77,10 +108,21 @@ const buildGroupBy: buildPipe = (queryDSL, context) => {
   return result as VQueryDSL
 }
 
-const buildLimit: buildPipe = (queryDSL) => {
+const buildLimit: buildPipe = (queryDSL, context) => {
   const result = { ...queryDSL }
+  const { vbiDSL } = context
+  const filters = vbiDSL.filters || []
+  
+  // Extract sort items to check for limit
+  const sortItems = filters.filter((f) => f.enabled !== false && f.actionType === 'sort')
+  const validLimitItem = sortItems.find((f) => f.limit !== undefined && f.limit !== null)
 
-  result.limit = 100
+  if (validLimitItem && typeof validLimitItem.limit === 'number') {
+    result.limit = validLimitItem.limit
+  } else {
+    // Default limit
+    result.limit = 100
+  }
 
   return result as VQueryDSL
 }

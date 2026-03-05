@@ -4,8 +4,11 @@ export const zVBIFilter = z.object({
   id: z.string().optional(),
   name: z.string().optional(),
   field: z.string(),
-  operator: z.string(),
-  value: z.any(),
+  actionType: z.enum(['filter', 'sort']).optional(),
+  operator: z.string().optional(),
+  value: z.any().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  limit: z.number().optional(),
   enabled: z.boolean().optional().default(true),
 })
 

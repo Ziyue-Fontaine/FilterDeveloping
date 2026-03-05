@@ -52,6 +52,14 @@ export const APP = (props: APPProps) => {
   const [filters, setFilters] = useState<FilterItem[]>([]);
 
   useEffect(() => {
+    const handleFilterError = () => {
+      setFilters((prev) => prev.slice(0, -1));
+    };
+    window.addEventListener('vbi-filter-error', handleFilterError);
+    return () => window.removeEventListener('vbi-filter-error', handleFilterError);
+  }, []);
+
+  useEffect(() => {
     return initialize(props.builder);
   }, []);
 
@@ -84,6 +92,9 @@ export const APP = (props: APPProps) => {
             field: f.field,
             operator: f.operator,
             value: f.value,
+            actionType: f.actionType,
+            sortOrder: f.sortOrder,
+            limit: f.limit,
             enabled: true,
           });
         }
