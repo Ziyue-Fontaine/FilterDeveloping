@@ -38,9 +38,16 @@ const buildWhere: buildPipe = (queryDSL, context) => {
         }
         return conditions as any;
       }
+      
+      let mappedOp = filter.operator;
+      if (Array.isArray(filter.value)) {
+         if (mappedOp === '=') mappedOp = 'in';
+         if (mappedOp === '!=') mappedOp = 'not in';
+      }
+      
       return [{
         field: filter.field,
-        op: filter.operator,
+        op: mappedOp,
         value: filter.value,
       }] as any;
     }),
@@ -121,7 +128,7 @@ const buildLimit: buildPipe = (queryDSL, context) => {
     result.limit = validLimitItem.limit
   } else {
     // Default limit
-    result.limit = 100
+    result.limit = 1000
   }
 
   return result as VQueryDSL

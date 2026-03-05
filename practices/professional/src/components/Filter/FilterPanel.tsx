@@ -153,7 +153,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ fields, activeFields =
   const handleSubmit = () => {
     form.validateFields().then(values => {
       const { name, field, operator, value, actionType, sortOrder, limit } = values;
-      const finalValue = (operator === 'in' || operator === 'not in') && typeof value === 'string' 
+      const finalValue = (operator === 'in' || operator === 'not in' || operator === '=' || operator === '!=') && typeof value === 'string' 
         ? value.split(',').map((v: string) => v.trim()) 
         : value;
       
@@ -295,14 +295,33 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ fields, activeFields =
       >
         <Form form={form} layout="vertical" initialValues={{ operator: 'in', role: 'dimension', actionType: 'filter', sortOrder: 'desc' }}>
           <Form.Item label="字段类型" name="role">
-            <Radio.Group optionType="button">
+            <Radio.Group optionType="button" onChange={(e) => {
+              form.setFieldsValue({
+                field: undefined,
+                operator: e.target.value === 'measure' ? '=' : 'in',
+                value: undefined,
+                actionType: 'filter',
+                sortOrder: 'desc',
+                limit: undefined,
+                name: undefined
+              });
+            }}>
               <Radio value="dimension">维度 (Dimension)</Radio>
               <Radio value="measure">度量 (Measure)</Radio>
             </Radio.Group>
           </Form.Item>
           
           <Form.Item label="字段" name="field" rules={[{ required: true, message: '请选择字段' }]}>
-            <Select placeholder="选择要筛选的字段" showSearch>
+            <Select placeholder="选择要筛选的字段" showSearch onChange={() => {
+              form.setFieldsValue({
+                actionType: 'filter',
+                operator: selectedRole === 'measure' ? '=' : 'in',
+                value: undefined,
+                sortOrder: 'desc',
+                limit: undefined,
+                name: undefined
+              });
+            }}>
               {displayFields.map(f => {
                 const isActive = activeFields.includes(f.name);
                 return (
@@ -318,7 +337,15 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ fields, activeFields =
           
           {selectedRole === 'measure' && (
             <Form.Item label="行为类型" name="actionType">
-              <Radio.Group optionType="button">
+              <Radio.Group optionType="button" onChange={(e) => {
+                form.setFieldsValue({
+                  operator: selectedRole === 'measure' ? '=' : 'in',
+                  value: undefined,
+                  sortOrder: 'desc',
+                  limit: undefined,
+                  name: undefined
+                });
+              }}>
                 <Radio value="filter">筛选</Radio>
                 <Radio value="sort">排序</Radio>
               </Radio.Group>
@@ -328,7 +355,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ fields, activeFields =
           {actionType === 'sort' ? (
             <>
               <Form.Item label="排序方向" name="sortOrder" rules={[{ required: true }]}>
-                <Radio.Group optionType="button">
+                <Radio.Group optionType="button" onChange={() => {
+                  form.setFieldsValue({ limit: undefined, name: undefined });
+                }}>
                   <Radio value="desc">降序 (DESC)</Radio>
                   <Radio value="asc">升序 (ASC)</Radio>
                 </Radio.Group>
@@ -340,11 +369,23 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ fields, activeFields =
           ) : (
             <>
               <Form.Item label="操作符" name="operator" rules={[{ required: true }]}>
-                <Select>
-                  {availableOperators.map(op => (
-                    <Option key={op.value} value={op.value}>{op.label}</Option>
-                  ))}
-                </Select>
+                {selectedRole === 'dimension' ? (
+                  <Radio.Group optionType="button" onChange={() => {
+                    form.setFieldsValue({ value: undefined, name: undefined });
+                  }}>
+                    {availableOperators.map(op => (
+                      <Radio key={op.value} value={op.value}>{op.label}</Radio>
+                    ))}
+                  </Radio.Group>
+                ) : (
+                  <Select onChange={() => {
+                    form.setFieldsValue({ value: undefined, name: undefined });
+                  }}>
+                    {availableOperators.map(op => (
+                      <Option key={op.value} value={op.value}>{op.label}</Option>
+                    ))}
+                  </Select>
+                )}
               </Form.Item>
               {operator === 'between' ? (
                 <Form.Item label="范围设置">
@@ -374,7 +415,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ fields, activeFields =
                 </Form.Item>
               ) : (
                 <Form.Item label="筛选值" name="value" rules={[{ required: true, message: '请输入筛选值' }]}>
-                  <Input placeholder="输入筛选值 (如需多选，请用英文逗号分隔)" />
+                  <Input placeholder={['in', 'not in', '=', '!='].includes(operator) ? "输入筛选值 (如需多选，请用英文逗号分隔)" : "输入筛选值"} />
                 </Form.Item>
               )}
             </>
